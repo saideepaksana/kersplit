@@ -1,0 +1,11 @@
+name: sage
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - sage=10.9
+  - pytest
+  - matplotlib
+  - ipywidgets
+  - jupyterlab
+  - nbconvert

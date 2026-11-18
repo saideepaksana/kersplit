@@ -1,0 +1,6 @@
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+report/*.aux
+report/*.log
+report/*.out

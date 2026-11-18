@@ -1,0 +1,9 @@
+[project]
+name = "kersplit"
+version = "1.0.0"
+description = "Berlekamp's algorithm for factoring polynomials over Z_p (CS5610 project)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

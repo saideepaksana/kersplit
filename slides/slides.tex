@@ -1,0 +1,370 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+% Colors (same blue as the report)
+\definecolor{customblue}{RGB}{0,102,204}
+\definecolor{softblue}{RGB}{232,241,251}
+\definecolor{ink}{RGB}{33,37,41}
+\definecolor{muted}{RGB}{108,117,125}
+\definecolor{m1}{RGB}{42,120,214}
+\definecolor{m2}{RGB}{235,104,52}
+\definecolor{m3}{RGB}{27,175,122}
+
+% Minimal theme
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=ink,bg=white}
+\setbeamercolor{frametitle}{fg=customblue,bg=white}
+\setbeamercolor{title}{fg=customblue}
+\setbeamercolor{structure}{fg=customblue}
+\setbeamercolor{block title}{fg=white,bg=customblue}
+\setbeamercolor{block body}{fg=ink,bg=softblue}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamertemplate{itemize items}{\color{customblue}\textbullet}
+\setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{frametitle}{\vspace{0.5em}\insertframetitle\par\vspace{-0.2em}{\color{customblue!30}\rule{\textwidth}{0.6pt}}}
+\setbeamertemplate{footline}{%
+  \hspace{1.2em}{\color{muted}\scriptsize KerSplit\quad\textbullet\quad\insertsection}%
+  \hfill{\color{muted}\scriptsize\insertframenumber\,/\,\inserttotalframenumber}\hspace{1.2em}\vspace{0.8em}}
+
+\newcommand{\Zp}{\mathbb{Z}_p}
+\newcommand{\Zpx}{\mathbb{Z}_p[x]}
+\newcommand{\note}[1]{{\color{muted}\small #1}}
+
+% A section opener: big title, presenter, colored bar
+\newcommand{\partslide}[3]{%
+  \section{#2}
+  \begin{frame}[plain]
+    \vfill
+    {\color{#1}\rule{3em}{4pt}}\par\vspace{0.6em}
+    {\color{muted}\large #3}\par\vspace{0.3em}
+    {\Huge\bfseries #2}
+    \vfill
+  \end{frame}}
+
+\title{KerSplit}
+\subtitle{Factoring polynomials over $\mathbb{Z}_p$ with Berlekamp's algorithm}
+\author{Sai Deepak \and Member 2 \and Member 3}
+\institute{CS5610 Computational Number Theory and Algebra, IIT Hyderabad}
+\date{November 2026}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+\section{Introduction}
+
+\begin{frame}[plain]
+  \vfill
+  {\color{customblue}\rule{3em}{4pt}}\par\vspace{0.8em}
+  {\fontsize{40}{44}\selectfont\bfseries\color{customblue} KerSplit}\par\vspace{0.4em}
+  {\Large Factoring polynomials over $\mathbb{Z}_p$ with Berlekamp's algorithm}\par\vspace{1.6em}
+  {\color{ink} Sai Deepak \quad\textbullet\quad Member 2 \quad\textbullet\quad Member 3}\par\vspace{0.3em}
+  {\color{muted}\small CS5610 Computational Number Theory and Algebra, IIT Hyderabad, November 2026}
+  \vfill
+\end{frame}
+
+\begin{frame}{The problem}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Input:} a prime $p$ and $f \in \Zpx$ of degree $d$\par\medskip
+      \textbf{Output:}
+      \[ f = c \cdot h_1^{e_1} h_2^{e_2} \cdots h_k^{e_k} \]
+      with distinct monic irreducible $h_i$\par\bigskip
+      \note{In class: Cantor-Zassenhaus (HW3).\\ Today: Berlekamp (1967), which uses \textbf{linear algebra}.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Example}
+        $x^4 + 1$ is irreducible over $\mathbb{Z}$, but
+        \[ x^4 + 1 \equiv (x^2 + x + 2)(x^2 + 2x + 2) \pmod 3 \]
+      \end{block}
+      \medskip
+      \note{\textbf{Ker}nel, then \textbf{Split}: the algorithm in two words.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The pipeline}
+  \centering
+  \begin{tikzpicture}[
+      box/.style={draw=#1, line width=1.2pt, rounded corners=4pt, fill=#1!8,
+                  minimum width=2.45cm, minimum height=1.35cm, align=center, font=\small},
+      arr/.style={-{Stealth[length=6pt]}, line width=1pt, color=muted}]
+    \node[box=m1] (a) {\textbf{0}\\square-free\\parts};
+    \node[box=m1, right=0.45cm of a] (b) {\textbf{1}\\build $Q$};
+    \node[box=m2, right=0.45cm of b] (c) {\textbf{2}\\kernel of\\$Q - I$};
+    \node[box=m2, right=0.45cm of c, yshift=0.85cm] (d) {\textbf{3}\\small $p$:\\try every $s$};
+    \node[box=m3, right=0.45cm of c, yshift=-0.85cm] (e) {\textbf{4}\\large $p$:\\random $g$};
+    \node[box=customblue, right=0.45cm of d, yshift=-0.85cm] (f) {factors\\$h_i^{e_i}$};
+    \draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
+    \draw[arr] (c.east) -- (d.west); \draw[arr] (c.east) -- (e.west);
+    \draw[arr] (d.east) -- (f.west); \draw[arr] (e.east) -- (f.west);
+  \end{tikzpicture}
+  \par\vspace{1.4em}
+  {\small
+  {\color{m1}\rule{0.8em}{0.8em}} Sai Deepak: setup and $Q$\qquad
+  {\color{m2}\rule{0.8em}{0.8em}} Member 2: kernel and split\qquad
+  {\color{m3}\rule{0.8em}{0.8em}} Member 3: large $p$ and results}
+  \par\vspace{0.8em}
+  \note{Sage gives us arithmetic in $\Zpx$. The matrix, the kernel and both splits are our code.}
+\end{frame}
+
+% -------------------------------------------------------------------------
+\partslide{m1}{Square-free parts and $Q$}{Part 1 \quad\textbullet\quad Sai Deepak}
+
+\begin{frame}{Step 0: remove repeated factors first}
+  Berlekamp needs $f$ \textbf{square-free}. The usual tool: $\gcd(f, f')$ contains every repeated factor.
+  \bigskip
+  \begin{block}{The trap in characteristic $p$}
+    \[ (h^p)' = p\, h^{p-1} h' = 0 \]
+    so factors $h^p$ are invisible to the derivative.
+  \end{block}
+  \bigskip
+  Example over $\mathbb{Z}_3$: \ $(x^2 + 1)^3 = x^6 + 1$ \ and \ $(x^6 + 1)' = 0$.
+\end{frame}
+
+\begin{frame}{Step 0: the fix is a $p$-th root}
+  A polynomial with zero derivative only uses $x^0, x^p, x^{2p}, \dots$, so
+  \[ \sum_j a_j\, x^{jp} = \Big(\sum_j a_j\, x^j\Big)^p \qquad \text{since } a^p = a \text{ in } \Zp \]
+  \medskip
+  \begin{enumerate}
+    \item Peel off multiplicities $1, 2, 3, \dots$ with gcds of $f$ and $f'$
+    \item What is left is a $p$-th power: take the root, recurse, multiply multiplicities by $p$
+  \end{enumerate}
+  \bigskip
+  \note{Over $\mathbb{Z}_5$: $(x+1)^5 (x^2+2)^2 (x+3) \;\to\; \{(x+3, 1),\ (x^2+2, 2),\ (x+1, 5)\}$}
+\end{frame}
+
+\begin{frame}{Step 1: $g \mapsto g^p$ is linear}
+  In characteristic $p$:
+  \[ (a + b)^p = a^p + b^p, \qquad (\lambda a)^p = \lambda a^p \text{ for } \lambda \in \Zp \]
+  So for $g = \sum g_i x^i$, \quad $g^p = \sum g_i\, x^{ip}$.
+  \bigskip
+  \begin{block}{The Berlekamp matrix $Q$ \quad ($d \times d$)}
+    \centering row $i$ \ = \ coefficients of \ $x^{ip} \bmod f$
+  \end{block}
+  \bigskip
+  Then $g^p \bmod f$ has coefficient vector $v_g\, Q$.\par
+  \note{Cost: $x^p \bmod f$ once by repeated squaring, then multiply by $x^p$ for each next row.}
+\end{frame}
+
+\begin{frame}{Step 1: $Q$ for $x^4 + 1$ over $\mathbb{Z}_3$}
+  \begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+      Using $x^4 \equiv -1$:
+      \[
+      \begin{array}{rcl}
+        x^0 &=& 1 \\
+        x^3 &=& x^3 \\
+        x^6 &\equiv& 2x^2 \\
+        x^9 &\equiv& x
+      \end{array}
+      \]
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \[
+        Q = \begin{pmatrix} 1&0&0&0 \\ 0&0&0&1 \\ 0&0&2&0 \\ 0&1&0&0 \end{pmatrix}
+      \]
+    \end{column}
+  \end{columns}
+  \bigskip
+  \centering\note{Each row is one power $x^{3i}$ written in the basis $1, x, x^2, x^3$.}
+\end{frame}
+
+% -------------------------------------------------------------------------
+\partslide{m2}{The kernel and the split}{Part 2 \quad\textbullet\quad Member 2}
+
+\begin{frame}{Step 2: the kernel counts the factors}
+  \[ B = \{\, g : g^p \equiv g \pmod f \,\} \quad = \quad \{\, g : v_g (Q - I) = 0 \,\} \]
+  \bigskip
+  \begin{block}{Theorem}
+    If $f = h_1 \cdots h_r$ is square-free, then \ $\dim B = r$.
+  \end{block}
+  \bigskip
+  We learn \textbf{how many} factors there are before finding any.\\
+  $r = 1$ \ $\Rightarrow$ \ $f$ is irreducible.
+\end{frame}
+
+\begin{frame}{Why: the Chinese Remainder Theorem}
+  \[
+    \Zpx/(f) \;\cong\; \underbrace{\Zpx/(h_1)}_{\text{field}} \times \cdots \times \underbrace{\Zpx/(h_r)}_{\text{field}}
+  \]
+  \medskip
+  \begin{itemize}
+    \item In a field, $t^p = t$ has exactly the $p$ solutions $\Zp$ \note{(Fermat)}
+    \item So $g \in B$ \ $\iff$ \ $g \equiv s_i \pmod{h_i}$ with constants $s_i \in \Zp$
+    \item Any choice $(s_1, \dots, s_r) \in \Zp^r$ works: \ $B \cong \Zp^r$
+  \end{itemize}
+  \bigskip
+  \centering{\Large $\dim B = r$}
+\end{frame}
+
+\begin{frame}{Step 3: every $g \in B$ splits $f$}
+  Over $\Zp$: \quad $t^p - t = \prod_{s \in \Zp} (t - s)$
+  \medskip
+  \begin{block}{Split}
+    \[ f \ = \prod_{s \in \Zp} \gcd(f,\ g - s) \]
+  \end{block}
+  \medskip
+  $\gcd(f, g - s)$ collects the $h_i$ with $g \equiv s \pmod{h_i}$.\\
+  A non-constant $g$ gives at least two pieces. If needed, refine with the next basis vector.
+\end{frame}
+
+\begin{frame}{Worked example: $x^4 + 1$ over $\mathbb{Z}_3$}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \[
+        Q - I = \begin{pmatrix} 0&0&0&0 \\ 0&2&0&1 \\ 0&0&1&0 \\ 0&1&0&2 \end{pmatrix}
+      \]
+      $v(Q-I) = 0 \;\Rightarrow\; v_2 = 0,\ v_3 = v_1$\par\medskip
+      Kernel basis \ $\{\,1,\ x^3 + x\,\}$ \ $\Rightarrow$ \ $r = 2$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      With $g = x^3 + x$:
+      \[
+      \begin{array}{rcl}
+        \gcd(f, g - 0) &=& 1 \\
+        \gcd(f, g - 1) &=& x^2 + 2x + 2 \\
+        \gcd(f, g - 2) &=& x^2 + x + 2
+      \end{array}
+      \]
+      \begin{block}{}
+        \centering $x^4 + 1 = (x^2 + x + 2)(x^2 + 2x + 2)$
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{The catch: the cost depends on $p$}
+  The split tries \textbf{all $p$ values} of $s$: \quad cost $O(r\,p\,d^2)$
+  \bigskip
+  \begin{itemize}
+    \item $p = 3$: instant
+    \item $p \approx 2^{16}$: about $45\times$ slower than at $2^{8}$
+    \item $p \approx 2^{512}$: never finishes
+  \end{itemize}
+  \bigskip
+  \begin{block}{}
+    Polynomial in $p$, \textbf{not} in $\log p$. So deterministic Berlekamp does not settle
+    deterministic polynomial-time factoring.
+  \end{block}
+\end{frame}
+
+% -------------------------------------------------------------------------
+\partslide{m3}{Large $p$ and results}{Part 3 \quad\textbullet\quad Member 3}
+
+\begin{frame}{Step 4: a random $g$ instead of every $s$}
+  Pick $g \in B$ at random. Then each $s_i = g \bmod h_i$ is a random element of $\Zp$.
+  \medskip
+  \begin{block}{Euler's criterion}
+    $s^{(p-1)/2} = 1$ \ exactly when $s$ is a non-zero square: \ about half of $\Zp$
+  \end{block}
+  \medskip
+  \[ \gcd\big(f,\ g^{(p-1)/2} - 1\big) \]
+  takes each $h_i$ with probability $\approx \tfrac12$, independently: a proper factor with good probability.\par
+  \medskip
+  \note{Cost $O(\log p)$ per try: polynomial in $\log p$. \quad For $p = 2$: use $\gcd(f, g)$.}
+\end{frame}
+
+\begin{frame}{Does the coin really land half the time?}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      $f = h_1 h_2$ over $\mathbb{Z}_{101}$, 2000 random $g$\par\bigskip
+      Split happens when exactly one coin is heads:
+      \[ 2q(1-q), \quad q = \tfrac{p-1}{2p} \]
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \centering
+      {\color{muted}predicted}\par
+      {\fontsize{28}{30}\selectfont\bfseries 0.500}\par\bigskip
+      {\color{muted}measured}\par
+      {\fontsize{28}{30}\selectfont\bfseries\color{customblue} 0.496}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Is it correct?}
+  \begin{columns}[c]
+    \begin{column}{0.32\textwidth}
+      \centering
+      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 500}\par
+      random polynomials checked against Sage \texttt{factor()}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 378/378}\par
+      benchmark factorizations correct
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 66}\par
+      tests, all passing
+    \end{column}
+  \end{columns}
+  \bigskip\bigskip
+  \centering\note{From $p = 2$ to a 512-bit prime; multiplicities up to $p^2$; the three HW3 samples.}
+\end{frame}
+
+\begin{frame}{Berlekamp vs our HW3 Cantor-Zassenhaus: size of $p$}
+  \begin{columns}[c]
+    \begin{column}{0.62\textwidth}
+      \includegraphics[width=\textwidth]{../bench/results/time_vs_p.png}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \small
+      \begin{itemize}
+        \item Deterministic grows with $p$
+        \item Randomized grows with $\log p$
+        \item From 64 bits up, Berlekamp wins:\\
+              \textbf{0.74 s vs 1.68 s} at 512 bits
+      \end{itemize}
+      \medskip
+      \note{One exponentiation by $p$, instead of up to $d/2$. Same inputs, same library, $d = 30$.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Berlekamp vs our HW3 Cantor-Zassenhaus: degree}
+  \begin{columns}[c]
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../bench/results/time_vs_degree.png}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../bench/results/berlekamp_stages.png}
+    \end{column}
+  \end{columns}
+  \medskip
+  \centering
+  The kernel of $Q - I$ is \textbf{over 90\%} of the time at $d = 100$: $O(d^3)$ linear algebra.\par
+  \note{So Cantor-Zassenhaus wins for small $p$ and large $d$.}
+\end{frame}
+
+% -------------------------------------------------------------------------
+\section{Summary}
+
+\begin{frame}{Takeaways}
+  \begin{enumerate}
+    \setlength{\itemsep}{0.8em}
+    \item $\dim \ker(Q - I) = r$: \ Berlekamp knows the number of factors first
+    \item Square-free in characteristic $p$ needs the $p$-th root step
+    \item Deterministic split: polynomial in $p$, not $\log p$
+    \item Randomized split: polynomial in $\log p$, beats Cantor-Zassenhaus for large $p$
+    \item The bottleneck is the $O(d^3)$ linear algebra
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[plain]
+  \vfill
+  \centering
+  {\fontsize{34}{38}\selectfont\bfseries\color{customblue} Questions?}\par\vspace{1.4em}
+  \texttt{python -m kersplit --trace < examples/x4plus1\_mod3.txt}\par\vspace{0.6em}
+  {\color{muted}\small Live demo: \texttt{demo.ipynb} \quad\textbullet\quad Report: \texttt{report/report.pdf}}
+  \vfill
+\end{frame}
+
+\end{document}
