@@ -8,6 +8,16 @@
 > **Why "KerSplit"?** The algorithm in two words: compute a **kernel** (the null space of `Q - I`),
 > then **split** `f` with gcds against the vectors in that kernel.
 
+**Quick start** (Linux, macOS, or Windows through WSL2; details in [Section 4](#4-running-it-on-your-laptop)):
+
+```bash
+git clone git@github.com:saideepaksana/kersplit.git && cd kersplit
+make env        # once, 10-20 minutes: installs SageMath into a conda env called "sage"
+make check      # confirms Python, Sage, pytest and Jupyter work
+make example    # factors x^4 + 1 mod 3 and prints every step
+make test       # 66 tests, about 1 minute
+```
+
 ---
 
 ## 1. Problem statement
@@ -80,30 +90,96 @@ Compare running time with our own HW3 Cantor-Zassenhaus code for growing `d` and
 
 All three should be able to answer: *why does the kernel dimension equal the number of factors?*
 
-## 4. Deliverables and how to run them
+## 4. Running it on your laptop
 
-Everything runs with the Python from the `sage` conda env, from the repository root:
+### 4.1 What you need
+
+| Tool | Why | How to get it |
+|---|---|---|
+| Linux, macOS, or Windows with WSL2 | SageMath on conda does not run natively on Windows | Windows: `wsl --install` in PowerShell, then work inside Ubuntu |
+| conda (Miniforge recommended) | installs SageMath and everything else in one env | https://github.com/conda-forge/miniforge |
+| `make` and `git` | the commands below | usually preinstalled; Ubuntu: `sudo apt install make git`; macOS: `xcode-select --install` |
+| `pdflatex` (only for the report and slides) | builds the PDFs | Ubuntu: `sudo apt install texlive-latex-extra texlive-fonts-recommended`; macOS: MacTeX |
+
+The PDFs are already committed (`report/report.pdf`, `slides/slides.pdf`), so LaTeX is needed only
+if you edit them.
+
+### 4.2 Setup (once)
 
 ```bash
-conda env create -f environment.yml      # once: SageMath 10.9, pytest, matplotlib, Jupyter
-conda activate sage
-python -m kersplit --trace < examples/x4plus1_mod3.txt
+git clone git@github.com:saideepaksana/kersplit.git
+cd kersplit
+make env      # creates the conda env "sage" from environment.yml (SageMath 10.9, pytest, Jupyter)
+make check    # should print Python 3.12, SageMath 10.9, pytest, jupyterlab, pdflatex found
 ```
 
-| What | Where | Command |
+The SSH clone needs an SSH key added to your GitHub account. Without one, clone over HTTPS:
+`git clone https://github.com/saideepaksana/kersplit.git`.
+
+You do not need `conda activate`: the Makefile finds the env's Python itself. If you already have
+an env called `sage` that you do not want touched, use another name: `make env ENV=kersplit`, then
+add `ENV=kersplit` to every command below.
+
+### 4.3 Everyday commands
+
+All commands run from the repository root.
+
+| Command | What it does | Time |
 |---|---|---|
-| The algorithm, one file per member | `kersplit/` | `python -m kersplit --trace < examples/x4plus1_mod3.txt` |
-| Tests: 66 tests including unit tests, HW3 samples, 500 random cross-checks against Sage `factor()` | `tests/` | `python -m pytest` (about 1 minute) |
-| Benchmarks: tables in `summary.md`, CSVs and three plots | `bench/` | `python -m bench.bench` (about 35 s) |
-| Presentation notebook: theory, live checks, results, interactive box; one section per member | `demo.ipynb` | `jupyter lab demo.ipynb` |
-| Report (LaTeX, 9 pages) | `report/report.pdf` | `cd report && pdflatex report.tex` (run twice) |
-| Slides (Beamer, 22 slides, about 15 minutes, 5 per member) | `slides/slides.pdf` | `cd slides && pdflatex slides.tex` (run twice) |
-| Design and interfaces | `docs/design.md` | |
+| `make example` | factors `x^4 + 1` mod 3 with the full trace: `Q`, kernel basis, every gcd | instant |
+| `make run FILE=examples/hw3_sample2.txt` | factors any HW3-format input file | instant |
+| `make test` | 66 tests: unit tests, HW3 samples, 500 random cross-checks against Sage `factor()` | about 1 minute |
+| `make bench` | regenerates `bench/results/` (summary table, CSVs, three plots) | about 1 minute |
+| `make notebook` | re-runs every cell of `demo.ipynb` and saves the outputs | about 30 s |
+| `make demo` | opens `demo.ipynb` in Jupyter Lab, for the presentation | |
+| `make report` / `make slides` | rebuilds `report/report.pdf` / `slides/slides.pdf` after you edit the `.tex` | a few seconds |
+| `make all` | test, bench, notebook, report and slides, in that order | about 3 minutes |
+| `make clean` | removes caches and LaTeX build files | |
 
-Input files use the HW3 format (`p:`, `d:`, `f:`); see `examples/`. Options: `--method
-{auto,deterministic,random}`, `--trace`, `--seed N`.
+Without `make`, the same thing by hand: `conda activate sage`, then for example
+`python -m kersplit --trace < examples/x4plus1_mod3.txt`, `python -m pytest`, `python -m bench.bench`.
 
-### Results (`bench/results/summary.md`)
+**Input format** (HW3), see `examples/`:
+
+```text
+p:3
+d:4
+f:x^4 + 1
+```
+
+Options of `python -m kersplit`: `--method {auto,deterministic,random}` (auto uses the
+deterministic split for `p <= 1000`), `--trace` (print every step), `--seed N` (random split seed).
+
+### 4.4 Before the presentation
+
+1. `make test` and `make example`: everything passes and prints.
+2. `make demo`, then in Jupyter choose **Run > Run All Cells**. The interactive box is the last section.
+3. Open `slides/slides.pdf` in full-screen mode.
+
+### 4.5 If something goes wrong
+
+| Problem | Fix |
+|---|---|
+| `conda env 'sage' not found` | run `make env` (or check `ENV=` matches the env name) |
+| `conda: command not found` | install Miniforge, then open a new terminal |
+| `make env` is slow or seems stuck | normal the first time: SageMath is a few GB; let it finish |
+| Jupyter opens but `import sage` fails | the notebook kernel is not the env's Python: open it with `make demo`, not a global Jupyter |
+| `pdflatex` errors about a missing `.sty` file | install `texlive-latex-extra` (Ubuntu) or the full MacTeX |
+| times differ from the README | expected: they depend on the machine and its load; compare methods within a row |
+
+### 4.6 Deliverables
+
+| What | Where |
+|---|---|
+| The algorithm, one module per step | `kersplit/` |
+| Tests | `tests/` |
+| Benchmarks and results | `bench/`, `bench/results/summary.md` |
+| Presentation notebook: theory, live checks, results, interactive box | `demo.ipynb` |
+| Report (LaTeX, 9 pages) | `report/report.tex`, `report/report.pdf` |
+| Slides (Beamer, 22 slides, about 15 minutes, 5 per member) | `slides/slides.tex`, `slides/slides.pdf` |
+| Design: interfaces, invariants, acceptance | `docs/design.md` |
+
+## 5. Results (`bench/results/summary.md`)
 
 - All 378 benchmark factorizations and all 500 test cross-checks agree with Sage `factor()`.
 - Deterministic Berlekamp's split grows linearly with `p`: degree 30 takes 0.005 s at 8 bits and
@@ -118,19 +194,22 @@ Input files use the HW3 format (`p:`, `d:`, `f:`); see `examples/`. Options: `--
 
 ![Time vs size of p](bench/results/time_vs_p.png)
 
-### Repository layout
+## 6. Repository layout
 
-```
+```text
 kersplit/          the algorithm: one module per step (see docs/design.md for owners)
 tests/             pytest suite, including the cross-check against Sage factor()
 bench/             HW3 Cantor-Zassenhaus baseline, benchmark script, results/ (tables and plots)
 examples/          HW3-format inputs: the three HW3 samples, x^4+1 mod 3, a repeated-factor case
 docs/design.md     interfaces, invariants, acceptance criteria
 demo.ipynb         presentation notebook (executed, outputs saved)
+report/            LaTeX report and its PDF
+slides/            Beamer slides and their PDF
 environment.yml    conda environment
+Makefile           every command above (make help)
 ```
 
-## 5. References
+## 7. References
 
 1. E. R. Berlekamp, *Factoring Polynomials over Finite Fields*, Bell System Tech. J. 46 (1967).
 2. E. R. Berlekamp, *Factoring Polynomials over Large Finite Fields*, Math. Comp. 24 (1970).
