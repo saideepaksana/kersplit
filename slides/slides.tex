@@ -33,9 +33,14 @@
   \hspace{1.2em}{\color{muted}\scriptsize KerSplit\quad\textbullet\quad\insertsection}%
   \hfill{\color{muted}\scriptsize\insertframenumber\,/\,\inserttotalframenumber}\hspace{1.2em}\vspace{0.8em}}
 
+\tikzset{
+  box/.style={draw=#1, line width=1.2pt, rounded corners=4pt, fill=#1!8,
+              minimum width=2.2cm, minimum height=1.35cm, align=center, font=\small},
+  arr/.style={-{Stealth[length=6pt]}, line width=1pt, color=muted}}
+
 \newcommand{\Zp}{\mathbb{Z}_p}
 \newcommand{\Zpx}{\mathbb{Z}_p[x]}
-\newcommand{\note}[1]{{\color{muted}\small #1}}
+\newcommand{\aside}[1]{{\color{muted}\small #1}}
 
 % A section opener: big title, presenter, colored bar
 \newcommand{\partslide}[3]{%
@@ -76,7 +81,7 @@
       \textbf{Output:}
       \[ f = c \cdot h_1^{e_1} h_2^{e_2} \cdots h_k^{e_k} \]
       with distinct monic irreducible $h_i$\par\bigskip
-      \note{In class: Cantor-Zassenhaus (HW3).\\ Today: Berlekamp (1967), which uses \textbf{linear algebra}.}
+      \aside{In class: Cantor-Zassenhaus (HW3).\\ Today: Berlekamp (1967), which uses \textbf{linear algebra}.}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{block}{Example}
@@ -84,17 +89,14 @@
         \[ x^4 + 1 \equiv (x^2 + x + 2)(x^2 + 2x + 2) \pmod 3 \]
       \end{block}
       \medskip
-      \note{\textbf{Ker}nel, then \textbf{Split}: the algorithm in two words.}
+      \aside{\textbf{Ker}nel, then \textbf{Split}: the algorithm in two words.}
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}{The pipeline}
   \centering
-  \begin{tikzpicture}[
-      box/.style={draw=#1, line width=1.2pt, rounded corners=4pt, fill=#1!8,
-                  minimum width=2.45cm, minimum height=1.35cm, align=center, font=\small},
-      arr/.style={-{Stealth[length=6pt]}, line width=1pt, color=muted}]
+  \begin{tikzpicture}
     \node[box=m1] (a) {\textbf{0}\\square-free\\parts};
     \node[box=m1, right=0.45cm of a] (b) {\textbf{1}\\build $Q$};
     \node[box=m2, right=0.45cm of b] (c) {\textbf{2}\\kernel of\\$Q - I$};
@@ -107,11 +109,11 @@
   \end{tikzpicture}
   \par\vspace{1.4em}
   {\small
-  {\color{m1}\rule{0.8em}{0.8em}} Sai Deepak: setup and $Q$\qquad
-  {\color{m2}\rule{0.8em}{0.8em}} Member 2: kernel and split\qquad
-  {\color{m3}\rule{0.8em}{0.8em}} Member 3: large $p$ and results}
+  {\color{m1}\rule{0.8em}{0.8em}}~Sai Deepak: steps 0--1\qquad
+  {\color{m2}\rule{0.8em}{0.8em}}~Member 2: steps 2--3\qquad
+  {\color{m3}\rule{0.8em}{0.8em}}~Member 3: step 4 and results}
   \par\vspace{0.8em}
-  \note{Sage gives us arithmetic in $\Zpx$. The matrix, the kernel and both splits are our code.}
+  \aside{Sage gives us arithmetic in $\Zpx$. The matrix, the kernel and both splits are our code.}
 \end{frame}
 
 % -------------------------------------------------------------------------
@@ -137,7 +139,7 @@
     \item What is left is a $p$-th power: take the root, recurse, multiply multiplicities by $p$
   \end{enumerate}
   \bigskip
-  \note{Over $\mathbb{Z}_5$: $(x+1)^5 (x^2+2)^2 (x+3) \;\to\; \{(x+3, 1),\ (x^2+2, 2),\ (x+1, 5)\}$}
+  \aside{Over $\mathbb{Z}_5$: $(x+1)^5 (x^2+2)^2 (x+3) \;\to\; \{(x+3, 1),\ (x^2+2, 2),\ (x+1, 5)\}$}
 \end{frame}
 
 \begin{frame}{Step 1: $g \mapsto g^p$ is linear}
@@ -150,7 +152,7 @@
   \end{block}
   \bigskip
   Then $g^p \bmod f$ has coefficient vector $v_g\, Q$.\par
-  \note{Cost: $x^p \bmod f$ once by repeated squaring, then multiply by $x^p$ for each next row.}
+  \aside{Cost: $x^p \bmod f$ once by repeated squaring, then multiply by $x^p$ for each next row.}
 \end{frame}
 
 \begin{frame}{Step 1: $Q$ for $x^4 + 1$ over $\mathbb{Z}_3$}
@@ -173,7 +175,7 @@
     \end{column}
   \end{columns}
   \bigskip
-  \centering\note{Each row is one power $x^{3i}$ written in the basis $1, x, x^2, x^3$.}
+  \centering\aside{Each row is one power $x^{3i}$ written in the basis $1, x, x^2, x^3$.}
 \end{frame}
 
 % -------------------------------------------------------------------------
@@ -196,7 +198,7 @@
   \]
   \medskip
   \begin{itemize}
-    \item In a field, $t^p = t$ has exactly the $p$ solutions $\Zp$ \note{(Fermat)}
+    \item In a field, $t^p = t$ has exactly the $p$ solutions $\Zp$ \aside{(Fermat)}
     \item So $g \in B$ \ $\iff$ \ $g \equiv s_i \pmod{h_i}$ with constants $s_i \in \Zp$
     \item Any choice $(s_1, \dots, s_r) \in \Zp^r$ works: \ $B \cong \Zp^r$
   \end{itemize}
@@ -268,7 +270,7 @@
   \[ \gcd\big(f,\ g^{(p-1)/2} - 1\big) \]
   takes each $h_i$ with probability $\approx \tfrac12$, independently: a proper factor with good probability.\par
   \medskip
-  \note{Cost $O(\log p)$ per try: polynomial in $\log p$. \quad For $p = 2$: use $\gcd(f, g)$.}
+  \aside{Cost $O(\log p)$ per try: polynomial in $\log p$. \quad For $p = 2$: use $\gcd(f, g)$.}
 \end{frame}
 
 \begin{frame}{Does the coin really land half the time?}
@@ -292,22 +294,22 @@
   \begin{columns}[c]
     \begin{column}{0.32\textwidth}
       \centering
-      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 500}\par
+      {\fontsize{30}{32}\selectfont\bfseries\color{customblue} 500}\par
       random polynomials checked against Sage \texttt{factor()}
     \end{column}
     \begin{column}{0.32\textwidth}
       \centering
-      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 378/378}\par
+      {\fontsize{30}{32}\selectfont\bfseries\color{customblue} 378/378}\par
       benchmark factorizations correct
     \end{column}
     \begin{column}{0.32\textwidth}
       \centering
-      {\fontsize{34}{36}\selectfont\bfseries\color{customblue} 66}\par
+      {\fontsize{30}{32}\selectfont\bfseries\color{customblue} 66}\par
       tests, all passing
     \end{column}
   \end{columns}
   \bigskip\bigskip
-  \centering\note{From $p = 2$ to a 512-bit prime; multiplicities up to $p^2$; the three HW3 samples.}
+  \centering\aside{From $p = 2$ to a 512-bit prime; multiplicities up to $p^2$; the three HW3 samples.}
 \end{frame}
 
 \begin{frame}{Berlekamp vs our HW3 Cantor-Zassenhaus: size of $p$}
@@ -324,7 +326,7 @@
               \textbf{0.74 s vs 1.68 s} at 512 bits
       \end{itemize}
       \medskip
-      \note{One exponentiation by $p$, instead of up to $d/2$. Same inputs, same library, $d = 30$.}
+      \aside{One exponentiation by $p$, instead of up to $d/2$. Same inputs, same library, $d = 30$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -341,7 +343,7 @@
   \medskip
   \centering
   The kernel of $Q - I$ is \textbf{over 90\%} of the time at $d = 100$: $O(d^3)$ linear algebra.\par
-  \note{So Cantor-Zassenhaus wins for small $p$ and large $d$.}
+  \aside{So Cantor-Zassenhaus wins for small $p$ and large $d$.}
 \end{frame}
 
 % -------------------------------------------------------------------------

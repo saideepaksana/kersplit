@@ -97,7 +97,7 @@ python -m kersplit --trace < examples/x4plus1_mod3.txt
 | Benchmarks: tables in `summary.md`, CSVs and three plots | `bench/` | `python -m bench.bench` (about 35 s) |
 | Presentation notebook: theory, live checks, results, interactive box; one section per member | `demo.ipynb` | `jupyter lab demo.ipynb` |
 | Report (LaTeX, 9 pages) | `report/report.pdf` | `cd report && pdflatex report.tex` (run twice) |
-| Slides (to be made) | `slides/` | about 15 minutes, 5 per member |
+| Slides (Beamer, 22 slides, about 15 minutes, 5 per member) | `slides/slides.pdf` | `cd slides && pdflatex slides.tex` (run twice) |
 | Design and interfaces | `docs/design.md` | |
 
 Input files use the HW3 format (`p:`, `d:`, `f:`); see `examples/`. Options: `--method
