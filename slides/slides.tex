@@ -55,7 +55,7 @@
 
 \title{KerSplit}
 \subtitle{Factoring polynomials over $\mathbb{Z}_p$ with Berlekamp's algorithm}
-\author{Sai Deepak \and Member 2 \and Member 3}
+\author{Arjun \and Sai Deepak \and Ram Panikar}
 \institute{CS5610 Computational Number Theory and Algebra, IIT Hyderabad}
 \date{November 2026}
 
@@ -69,7 +69,7 @@
   {\color{customblue}\rule{3em}{4pt}}\par\vspace{0.8em}
   {\fontsize{40}{44}\selectfont\bfseries\color{customblue} KerSplit}\par\vspace{0.4em}
   {\Large Factoring polynomials over $\mathbb{Z}_p$ with Berlekamp's algorithm}\par\vspace{1.6em}
-  {\color{ink} Sai Deepak \quad\textbullet\quad Member 2 \quad\textbullet\quad Member 3}\par\vspace{0.3em}
+  {\color{ink} Arjun \quad\textbullet\quad Sai Deepak \quad\textbullet\quad Ram Panikar}\par\vspace{0.3em}
   {\color{muted}\small CS5610 Computational Number Theory and Algebra, IIT Hyderabad, November 2026}
   \vfill
 \end{frame}
@@ -109,15 +109,15 @@
   \end{tikzpicture}
   \par\vspace{1.4em}
   {\small
-  {\color{m1}\rule{0.8em}{0.8em}}~Sai Deepak: steps 0--1\qquad
+  {\color{m1}\rule{0.8em}{0.8em}}~Part 1: steps 0--1\qquad
   {\color{m2}\rule{0.8em}{0.8em}}~Member 2: steps 2--3\qquad
-  {\color{m3}\rule{0.8em}{0.8em}}~Member 3: step 4 and results}
+  {\color{m3}\rule{0.8em}{0.8em}}~Part 3: step 4 and results}
   \par\vspace{0.8em}
   \aside{Sage gives us arithmetic in $\Zpx$. The matrix, the kernel and both splits are our code.}
 \end{frame}
 
 % -------------------------------------------------------------------------
-\partslide{m1}{Square-free parts and $Q$}{Part 1 \quad\textbullet\quad Sai Deepak}
+\partslide{m1}{Square-free parts and $Q$}{Part 1}
 
 \begin{frame}{Step 0: remove repeated factors first}
   Berlekamp needs $f$ \textbf{square-free}. The usual tool: $\gcd(f, f')$ contains every repeated factor.
@@ -179,7 +179,7 @@
 \end{frame}
 
 % -------------------------------------------------------------------------
-\partslide{m2}{The kernel and the split}{Part 2 \quad\textbullet\quad Member 2}
+\partslide{m2}{The kernel and the split}{Part 2}
 
 \begin{frame}{Step 2: the kernel counts the factors}
   \[ B = \{\, g : g^p \equiv g \pmod f \,\} \quad = \quad \{\, g : v_g (Q - I) = 0 \,\} \]
@@ -258,7 +258,7 @@
 \end{frame}
 
 % -------------------------------------------------------------------------
-\partslide{m3}{Large $p$ and results}{Part 3 \quad\textbullet\quad Member 3}
+\partslide{m3}{Large $p$ and results}{Part 3}
 
 \begin{frame}{Step 4: a random $g$ instead of every $s$}
   Pick $g \in B$ at random. Then each $s_i = g \bmod h_i$ is a random element of $\Zp$.
