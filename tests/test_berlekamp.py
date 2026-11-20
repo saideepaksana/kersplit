@@ -4,10 +4,10 @@ from kersplit.berlekamp import berlekamp_basis, factor
 from tests.helpers import ring
 
 
-@pytest.mark.parametrize("p", [3, 5, 7, 11, 13])
-def test_x4_plus_1_has_two_factors_mod_every_odd_prime(p):
+@pytest.mark.parametrize("p, r", [(3, 2), (5, 2), (7, 2), (11, 2), (13, 2), (17, 4), (19, 2), (23, 2), (41, 4)])
+def test_x4_plus_1_has_four_factors_iff_p_is_1_mod_8(p, r):
     x = ring(p).gen()
-    assert len(berlekamp_basis(x**4 + 1)) == 2
+    assert len(berlekamp_basis(x**4 + 1)) == r
 
 
 def test_worked_example_basis():

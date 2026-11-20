@@ -2,7 +2,7 @@
 
 **Course:** CS5610 Computational Number Theory and Algebra, IIT Hyderabad (Jul-Nov 2026), Prof. N. R. Aravind
 **Project topic (#19):** Berlekamp's algorithm for polynomial factorization (Medium)
-**Team:** _Member 1_, _Member 2_, _Member 3_
+**Team:** Sai Deepak, Arjun Konidala, Ram Panikar
 **Presentation:** project week, 2026-11-19 to 2026-11-21
 
 > **Why "KerSplit"?** The algorithm in two words: compute a **kernel** (the null space of `Q - I`),
@@ -15,7 +15,7 @@ git clone git@github.com:saideepaksana/kersplit.git && cd kersplit
 make env        # once, 10-20 minutes: installs SageMath into a conda env called "sage"
 make check      # confirms Python, Sage, pytest and Jupyter work
 make example    # factors x^4 + 1 mod 3 and prints every step
-make test       # 66 tests, about 1 minute
+make test       # 70 tests, about 1 minute
 ```
 
 ---
@@ -128,7 +128,7 @@ All commands run from the repository root.
 |---|---|---|
 | `make example` | factors `x^4 + 1` mod 3 with the full trace: `Q`, kernel basis, every gcd | instant |
 | `make run FILE=examples/hw3_sample2.txt` | factors any HW3-format input file | instant |
-| `make test` | 66 tests: unit tests, HW3 samples, 500 random cross-checks against Sage `factor()` | about 1 minute |
+| `make test` | 70 tests: unit tests, HW3 samples, 500 random cross-checks against Sage `factor()` | about 1 minute |
 | `make bench` | regenerates `bench/results/` (summary table, CSVs, three plots) | about 1 minute |
 | `make notebook` | re-runs every cell of `demo.ipynb` and saves the outputs | about 30 s |
 | `make demo` | opens `demo.ipynb` in Jupyter Lab, for the presentation | |
@@ -176,7 +176,7 @@ deterministic split for `p <= 1000`), `--trace` (print every step), `--seed N` (
 | Benchmarks and results | `bench/`, `bench/results/summary.md` |
 | Presentation notebook: theory, live checks, results, interactive box | `demo.ipynb` |
 | Report (LaTeX, 9 pages) | `report/report.tex`, `report/report.pdf` |
-| Slides (Beamer, 22 slides, about 15 minutes, 5 per member) | `slides/slides.tex`, `slides/slides.pdf` |
+| Slides (Beamer, 29 slides, about 15 minutes, 5 per member) | `slides/slides.tex`, `slides/slides.pdf` |
 | Design: interfaces, invariants, acceptance | `docs/design.md` |
 
 ## 5. Results (`bench/results/summary.md`)
@@ -185,7 +185,7 @@ deterministic split for `p <= 1000`), `--trace` (print every step), `--seed N` (
 - Deterministic Berlekamp's split grows linearly with `p`: degree 30 takes 0.005 s at 8 bits and
   0.24 s at 16 bits, while the randomized version stays at 0.003 to 0.007 s. It is polynomial in
   `p`, not in `log p`.
-- For `p` of 64 to 512 bits, randomized Berlekamp beats our Cantor-Zassenhaus on the same inputs
+- Randomized Berlekamp and our Cantor-Zassenhaus are about even at 64 bits (0.040 s vs 0.043 s); from 128 to 512 bits Berlekamp clearly wins on the same inputs
   (0.74 s vs 1.68 s at 512 bits, degree 30). Cantor-Zassenhaus wins for small `p`.
 - Absolute times depend on the machine and its load; compare methods within a row.
 - The kernel of `Q - I` (our Python Gaussian elimination, `O(d^3)`) is over 90% of Berlekamp's

@@ -16,7 +16,7 @@ help:
 	@echo "make check     confirm the env works: Python, Sage, pytest, Jupyter, pdflatex"
 	@echo "make example   factor x^4 + 1 mod 3 with the full step-by-step trace"
 	@echo "make run FILE=examples/hw3_sample2.txt   factor any HW3-format input file"
-	@echo "make test      run the 66 tests (about 1 minute)"
+	@echo "make test      run the 70 tests (about 1 minute)"
 	@echo "make bench     regenerate bench/results/ tables and plots (about 1 minute)"
 	@echo "make notebook  re-execute demo.ipynb in place"
 	@echo "make demo      open demo.ipynb in Jupyter Lab"

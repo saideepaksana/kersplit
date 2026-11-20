@@ -16,10 +16,10 @@ def main() -> int:
     args = parser.parse_args()
     try:
         problem = parse_problem(sys.stdin.read())
+        result = factor(problem.f, method=args.method, trace=args.trace, seed=args.seed)
     except ValueError as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1
-    result = factor(problem.f, method=args.method, trace=args.trace, seed=args.seed)
     if not args.trace:
         print(result)
     if len(result.factors) == 1 and result.factors[0][1] == 1:

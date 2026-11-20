@@ -16,7 +16,7 @@ kersplit/                 package, one module per step
   polyops.py      M1      power_mod (repeated squaring mod f)
   squarefree.py   M1      pth_root, squarefree_decomposition
   qmatrix.py      M1      berlekamp_matrix
-  polyio.py       M1      parse_problem, format_factorization
+  polyio.py       M1      parse_problem, parse_polynomial
   kernel.py       M2      left_kernel_basis (Gaussian elimination over Z_p)
   berlekamp.py    M2      berlekamp_basis, split_deterministic, factor
   random_split.py M3      split_random
@@ -27,8 +27,9 @@ examples/                 HW3-format input files
 demo.ipynb                presentation notebook; imports kersplit, contains no algorithm code
 ```
 
-Dependencies flow one way: `polyops` <- `squarefree`, `qmatrix`, `random_split` <- `berlekamp`
-<- `__main__`, `bench`, `demo.ipynb`. `kernel` depends on nothing in the package.
+Dependencies flow one way: `polyops` <- `qmatrix`, `random_split` <- `berlekamp` (which also
+uses `squarefree` and `kernel`) <- `__main__`, `bench`, `demo.ipynb`. `squarefree` and `kernel`
+depend on nothing in the package.
 
 ## Interfaces
 

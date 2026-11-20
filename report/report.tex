@@ -79,7 +79,7 @@
 \title{\vspace{-2.4cm}\textbf{KerSplit}\\[6pt]
        \large Factoring Polynomials over $\mathbb{Z}_p$ with Berlekamp's Algorithm \\[4pt]
        \normalsize CS5610 Computational Number Theory and Algebra, IIT Hyderabad, 2026 \\[9pt]
-       Sai Deepak (cs23btech11055)\quad \textit{Member 2 (roll number)}\quad \textit{Member 3 (roll number)}}
+       \begin{tabular}{ccc}Sai Deepak & Arjun Konidala & Ram Panikar \\ \small cs23btech11055 & \small cs23btech11026 & \small cs23btech11040\end{tabular}}
 \author{}
 \date{}
 
@@ -151,7 +151,7 @@ $d$ and $p$, and how does it compare with Cantor-Zassenhaus on the same inputs?}
 \textbf{1. Repeated factors in characteristic $p$.}
 Berlekamp's argument needs square-free input. Over $\mathbb{Q}$, $f/\gcd(f, f')$ removes repeated
 factors, but over $\Zp$ the derivative of $h^p$ is $p\,h^{p-1}h' = 0$, so factors of the form
-$h^p$ are invisible to the derivative. A correct decomposition must detect them and take a $p$-th
+$h^p$ stay entirely inside $\gcd(f, f')$ and vanish from $f/\gcd(f, f')$. A correct decomposition must detect them and take a $p$-th
 root, or those factors are lost.
 
 \textbf{2. Proving that the kernel counts factors.}
@@ -426,7 +426,7 @@ Module & Contents & Owner \\
 
 \subsection*{6.1 Correctness}
 
-The test suite (\texttt{python -m pytest}, 66 tests, about one minute) checks every invariant
+The test suite (\texttt{python -m pytest}, 70 tests, about one minute) checks every invariant
 of the design against an independent oracle:
 \begin{itemize}
     \item \textbf{500 random cross-checks against Sage \texttt{factor()}:} products of random irreducibles for $p \in \{2, 3, 5, 7, 11, 13, 101\}$ with both splits (350 cases, multiplicities including $p$ and $2p$), $p = 987013$ (130 cases) and the 512-bit prime $2^{512} - 569$ (20 cases). Each check compares the leading coefficient, the list of (factor, multiplicity) pairs, and $\text{unit} \cdot \prod h^e = f$.
@@ -442,9 +442,9 @@ split $f$ at a rate of $0.496$, against the predicted $2q(1-q) = 0.500$.
 
 \subsection*{6.2 Benchmark setup}
 
-\texttt{python -m bench.bench} generates random monic square-free polynomials as products of
-random irreducibles and times the split stage of each method on \emph{the same} 7 inputs per
-configuration, reporting the median. Methods: deterministic Berlekamp, randomized Berlekamp, our
+\texttt{python -m bench.bench} draws random monic polynomials of the given degree, keeps the
+square-free ones, and times the complete factorization by each method on \emph{the same} 7 inputs
+per configuration, reporting the median. Methods: deterministic Berlekamp, randomized Berlekamp, our
 HW3 Cantor-Zassenhaus, and Sage's built-in \texttt{factor()} as a reference. All share Sage's
 polynomial arithmetic. Absolute times depend on the machine and its load, so we compare methods
 within a row.
@@ -483,7 +483,7 @@ bits of $p$ & Berlekamp (deterministic) & Berlekamp (randomized) & Cantor-Zassen
 \begin{itemize}
     \item The deterministic split grows with $p$ itself: from 12 to 16 bits ($p$ grows $16\times$) its time grows about $11\times$. This is the $O(r\,p\,d^2)$ term of Section~4.6 made visible, and it is why the method cannot reach cryptographic sizes.
     \item The randomized split grows only with $\log p$: from 2 to 512 bits its time grows about $280\times$ while $p$ grows by a factor of $2^{510}$.
-    \item From 64 bits upward, randomized Berlekamp beats our Cantor-Zassenhaus on the same inputs ($0.74$ s against $1.68$ s at 512 bits), as predicted: one exponentiation by $p$ against up to $d/2$ of them. For small $p$ Cantor-Zassenhaus wins, because exponentiations are cheap and Berlekamp's linear algebra dominates.
+    \item The two methods are about even at 64 bits ($0.040$ s against $0.043$ s); from 128 bits upward randomized Berlekamp clearly beats our Cantor-Zassenhaus on the same inputs ($0.74$ s against $1.68$ s at 512 bits), as predicted: one exponentiation by $p$ against up to $d/2$ of them. For small $p$ Cantor-Zassenhaus wins, because exponentiations are cheap and Berlekamp's linear algebra dominates.
     \item Sage stores polynomials with FLINT for $p < 2^{63}$ and with NTL above, so part of the jump between 32 and 64 bits comes from the library, not the algorithm.
 \end{itemize}
 
